@@ -3,9 +3,6 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import path from "path";
 
-import dotenv from "dotenv";
-dotenv.config({path: "secret.env"})
-
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
