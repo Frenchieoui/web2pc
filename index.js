@@ -1,12 +1,13 @@
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import path from "path";
+import cors from "cors";
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
 
+app.use(cors())
 app.use(express.static("public"));
 
 let senderSocket = null;
