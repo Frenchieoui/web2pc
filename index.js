@@ -1,6 +1,7 @@
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import path from "path";
 
 import dotenv from "dotenv";
 dotenv.config({path: "secret.env"})
@@ -9,10 +10,10 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server);
 
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/public/index.html');
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 let senderSocket = null;
@@ -92,4 +93,4 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(3000, () => console.log("Express cool"));
+module.exports = app;
