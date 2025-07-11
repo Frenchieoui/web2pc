@@ -2,6 +2,8 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config("secret.env");
 
 const app = express();
 const server = createServer(app);
