@@ -11,9 +11,9 @@ const io = new Server(server);
 
 app.use(express.static("public"));
 
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/public/index.html');
-});
+// app.get('/', function(req, res){
+//   res.sendFile(__dirname + '/public/index.html');
+// });
 
 let senderSocket = null;
 let receiverSocket = null;
