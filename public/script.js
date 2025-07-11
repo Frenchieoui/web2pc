@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io("https://web2pc.loca.lt");
 const password = prompt("Enter password to continue.");
 
 const title = document.getElementById("title");
