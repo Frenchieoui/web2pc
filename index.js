@@ -3,7 +3,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
-dotenv.config("secret.env");
+dotenv.config({path: "secret.env"});
 
 const app = express();
 const server = createServer(app);
@@ -51,6 +51,11 @@ io.on("connection", (socket) => {
     console.log(!!senderSocket, !!receiverSocket, "offer");
   });
 
+  socket.on("offer_ask", () => {
+    if (senderSocket) senderSocket.emit("offer_ask");
+    console.log(!!senderSocket, !!receiverSocket, "offer_ask");
+  });
+
   socket.on("answer", (data) => {
     if (senderSocket) senderSocket.emit("answer", data);
     console.log(!!senderSocket, !!receiverSocket, "answer");
@@ -83,9 +88,23 @@ io.on("connection", (socket) => {
     console.log("client disconnected");
   });
 
-  socket.on("mouse", (data) => {
-    console.log(socket == receiverSocket, pcSocket);
-    if (socket == receiverSocket && pcSocket) pcSocket.emit("mouse", data);
+  socket.on("mouse_move", (data) => {
+    if (socket == receiverSocket && pcSocket) pcSocket.emit("mouse_move", data);
+  });
+
+  socket.on("mouse_down", (button) => {
+    if (socket == receiverSocket && pcSocket) pcSocket.emit("mouse_down", button);
+  });
+  socket.on("mouse_up", (button) => {
+    if (socket == receiverSocket && pcSocket) pcSocket.emit("mouse_up", button);
+  });
+
+  socket.on("key_event", (data) => {
+    if (socket == receiverSocket && pcSocket) pcSocket.emit("key_event", data);
+  });
+
+  socket.on("wheel", (data) => {
+    if (socket == receiverSocket && pcSocket) pcSocket.emit("wheel", data);
   });
 });
 

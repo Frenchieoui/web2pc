@@ -1,4 +1,10 @@
-const socket = io("https://web2pc.loca.lt");
+// import { RemoteSocket } from "socket.io";
+
+const socket = io("https://web2pc.loca.lt", {
+  Headers: {
+    "idk": "idk",
+  }
+});
 const password = prompt("Enter password to continue.");
 
 const title = document.getElementById("title");
@@ -37,7 +43,13 @@ socket.on("auth_send", async (isAuth) => {
     window.close();
   }
 
-  stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+  stream = await navigator.mediaDevices.getDisplayMedia({   
+    video: {
+      displaySurface: "screen",
+      frameRate: role === 1 ? {ideal: 60, max: 60} : {ideal: 10, max: 10},
+    }, 
+    audio: role === 1 ? true : false,
+  });
   localVideo.srcObject = stream;
 
   socket.emit("register_role", role);
@@ -64,8 +76,6 @@ socket.on("auth_send", async (isAuth) => {
         "Receiver disconnected, waiting for receiver to connect";
     });
   } else {
-    const mouse = { x: 0, y: 0, click: false };
-
     // RECEIVER
     localVideo.hidden = true;
     remoteVideo.hidden = false;
@@ -73,6 +83,19 @@ socket.on("auth_send", async (isAuth) => {
 
     fullscreenButton.addEventListener("click", () => {
       remoteVideo.parentElement.requestFullscreen();
+      remoteVideo.parentElement.ogWidth = remoteVideo.parentElement.style.width;
+      remoteVideo.parentElement.ogHeight = remoteVideo.parentElement.style.height;
+      removeVideo.parentElement.style.width = document.body.screen.width + "px";
+      removeVideo.parentElement.style.height = document.body.screen.height + "px";
+    });
+
+    remoteVideo.parentElement.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement) {
+        remoteVideo.parentElement.style.width =
+          remoteVideo.parentElement.ogWidth || "1280px";
+        remoteVideo.parentElement.style.height =
+          remoteVideo.parentElement.ogHeight || "720px";
+      }
     });
 
     statusP.textContent = "Waiting for sender to connect";
@@ -95,6 +118,8 @@ socket.on("auth_send", async (isAuth) => {
       statusP.innerText += "; PC disconnected";
     });
 
+    let mouse = { x: 0, y: 0 };
+
     remoteVideo.addEventListener("mousemove", (e) => {
       const rect = remoteVideo.getBoundingClientRect();
 
@@ -111,16 +136,35 @@ socket.on("auth_send", async (isAuth) => {
       mouse.y = absoluteY;
     });
 
-    remoteVideo.addEventListener("mousedown", () => {
-      mouse.click = true;
-    });
-    remoteVideo.addEventListener("mouseup", () => {
-      mouse.click = false;
+    function sendMouseMove() {
+      socket.emit("mouse_move", { x: mouse.x, y: mouse.y });
+      requestAnimationFrame(sendMouseMove);
+    }
+    sendMouseMove()
+
+    document.addEventListener("mousedown", (e) => {
+      socket.emit("mouse_down", e.button);
     });
 
-    setInterval(() => {
-      socket.emit("mouse", mouse);
-    }, 100);
+    document.addEventListener("mouseup", (e) => {
+      socket.emit("mouse_up", e.button);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      socket.emit("key_event", { type: "down", key: e.key });
+    });
+
+    document.addEventListener("keyup", (e) => {
+      socket.emit("key_event", { type: "up", key: e.key });
+    });
+
+    document.addEventListener("wheel", (e) => {
+      socket.emit("wheel", { deltaX: e.deltaX, deltaY: e.deltaY });
+    });
+
+    document.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+    });
   }
 
   // Common: ICE candidate
@@ -137,7 +181,6 @@ socket.emit("auth_ask", password);
 
 async function offer() {
   createPeer(1);
-  stream.getTracks().forEach((track) => peer.addTrack(track, stream));
 
   const offer = await peer.createOffer({ offerToReceiveVideo: true });
   await peer.setLocalDescription(offer);
@@ -161,4 +204,7 @@ function createPeer(role) {
   peer.ontrack = (e) => {
     remoteVideo.srcObject = e.streams[0];
   };
+
+  stream.getTracks().forEach((track) => peer.addTrack(track, stream));
 }
+
