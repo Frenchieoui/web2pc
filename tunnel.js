@@ -8,7 +8,8 @@ console.log("Tunnel script initializing...");
   console.log(`Tunnel is live at: ${tunnel.url}`);
 
   if(tunnel.url !== "https://web2pc.loca.lt") {
-    console.error("Tunnel URL does not match expected URL. Exiting in 5 seconds...");
+    console.error("Tunnel URL does not match expected URL.");
+    console.error("Exiting in 5 seconds...")
     tunnel.close()
     setTimeout(()=>{
       process.exit(1);
@@ -17,12 +18,18 @@ console.log("Tunnel script initializing...");
 
   tunnel.on('close', () => {
     console.log("Tunnel closed.");
-    process.exit(1);
+    console.error("Exiting in 5 seconds...")
+    setTimeout(()=>{
+      process.exit(1);
+    }, 5000)
   });
 
   tunnel.on('error', (err) => {
     console.error("Tunnel error:", err);
-    process.exit(1);
+    console.error("Exiting in 5 seconds...")
+    setTimeout(()=>{
+      process.exit(1);
+    }, 5000)
   });
 })();
 
