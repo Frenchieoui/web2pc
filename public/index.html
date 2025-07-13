@@ -3,21 +3,27 @@
   <head>
     <title>Web 2 PC</title>
     <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+    <style>
+      ::-webkit-media-controls {
+        display:none !important;
+      }
+    </style>
   </head>
   <body>
     <h1 id="title">Web 2 PC</h1>
-    <p id="status">Waiting auth ig?</p>
+    <p id="status">bro just put it in alr</p>
     <button id="fullscreen">Fullscreen :)</button><br />
-    <video
+    <!-- <video
       id="localVideo"
       autoplay
       muted
       style="max-width: 100%; max-height: 80vh; height: auto"
-    ></video>
+    ></video> -->
     <div style="width: 100%; height: 100%">
       <video
         id="remoteVideo"
         autoplay
+        playsinline
         style="max-width: 100%; max-height: 80vh; height: auto"
       ></video>
     </div>
